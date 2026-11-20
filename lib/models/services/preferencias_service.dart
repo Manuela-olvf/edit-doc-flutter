@@ -1,21 +1,22 @@
-class PreferenciasService {
-  static final Map<String, dynamic> _preferencias = {
-    'tema': 'Claro',
-    'notificacoes': true,
-  };
+import 'package:shared_preferences/shared_preferences.dart';
 
+class PreferenciasService {
   Future<void> salvarTema(String tema) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    _preferencias['tema'] = tema;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('tema', tema);
   }
 
   Future<void> salvarNotificacoes(bool ativo) async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    _preferencias['notificacoes'] = ativo;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificacoes', ativo);
   }
 
   Future<Map<String, dynamic>> consultar() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return Map<String, dynamic>.from(_preferencias);
+    final prefs = await SharedPreferences.getInstance();
+
+    return {
+      'tema': prefs.getString('tema') ?? 'Claro',
+      'notificacoes': prefs.getBool('notificacoes') ?? true,
+    };
   }
 }

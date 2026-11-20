@@ -1,30 +1,51 @@
 
 import 'package:flutter/material.dart';
 import '../models/usuario.dart';
+import '../models/documento.dart';
 import '../models/services/usuario_service.dart';
 import '../models/services/preferencias_service.dart';
+import '../models/services/documento_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final UsuarioService _usuarioService = UsuarioService();
   final PreferenciasService _preferenciasService =
       PreferenciasService();
+  final DocumentoService _documentoService = DocumentoService();
 
-  final List<String> documentos = [];
+  List<Documento> documentos = [];
+  bool carregando = false;
 
-  String documentoAtual = '';
+  Future<void> carregarDocumentos() async {
+    carregando = true;
+    notifyListeners();
 
-  void salvarDocumento(String texto) {
-    final conteudo = texto.trim();
+    try {
+      documentos = await _documentoService.consultar();
+    } finally {
+      carregando = false;
+      notifyListeners();
+    }
+  }
 
-    if (conteudo.isEmpty) return;
+  Future<void> salvarDocumento(Documento documento) async {
+    final indice = documentos.indexWhere(
+      (item) => item.id == documento.id,
+    );
 
-    documentos.add(conteudo);
-    documentoAtual = '';
+    if (indice >= 0) {
+      documentos[indice] = documento;
+    } else {
+      documentos.add(documento);
+    }
+
+    await _documentoService.salvar(documentos);
     notifyListeners();
   }
 
-  void abrirDocumento(String documento) {
-    documentoAtual = documento;
+  Future<void> excluirDocumento(String id) async {
+    documentos.removeWhere((documento) => documento.id == id);
+
+    await _documentoService.salvar(documentos);
     notifyListeners();
   }
 
@@ -36,3 +57,4 @@ class HomeViewModel extends ChangeNotifier {
     return await _preferenciasService.consultar();
   }
 }
+

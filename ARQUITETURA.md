@@ -42,6 +42,20 @@ O gerenciamento de estado foi transferido para os ViewModels, substituindo a nec
 
 Os formulários e controladores de texto continuam nas Views, enquanto os estados e as operações de negócio ficam nos ViewModels.
 
-## 6. Conclusão
+## 6. Persistência de dados e documentos
 
-A migração para MVVM tornou o projeto mais organizado, facilitando a manutenção, a reutilização de código e a implementação de novas funcionalidades.
+Foi implementada a funcionalidade de criação, leitura, edição e exclusão de documentos.
+
+A classe `Documento` representa os dados de cada documento, enquanto o `DocumentoService` realiza o armazenamento utilizando o pacote `shared_preferences`.
+
+Os documentos são salvos localmente em formato JSON, permitindo que continuem disponíveis após fechar ou atualizar o aplicativo.
+
+## 7. Preferências do usuário
+
+O serviço `PreferenciasService` foi atualizado para utilizar `shared_preferences`, armazenando as configurações de tema e notificações.
+
+O tema selecionado é carregado ao iniciar o aplicativo, mantendo a preferência do usuário entre as sessões.
+
+## 8. Conclusão
+
+A migração para MVVM tornou o projeto mais organizado, facilitando a manutenção, a reutilização de código e a implementação de novas funcionalidades. A segunda etapa acrescentou o gerenciamento de documentos e a persistência local de dados e preferências.
