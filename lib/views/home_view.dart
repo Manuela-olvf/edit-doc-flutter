@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../models/documento.dart';
 import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/documentos_viewmodel.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -12,24 +13,17 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final HomeViewModel _viewModel = HomeViewModel();
-
-  final TextEditingController _tituloController =
-      TextEditingController();
-
-  final TextEditingController _documentoController =
-      TextEditingController();
-
-  String? _documentoEmEdicaoId;
+  final DocumentosViewModel _documentosViewModel =
+      DocumentosViewModel();
 
   @override
   void initState() {
     super.initState();
-    _viewModel.carregarDocumentos();
+    _documentosViewModel.carregarDocumentos();
   }
 
   Future<void> mostrarPreferencias() async {
-    final preferencias =
-        await _viewModel.consultarPreferencias();
+    final preferencias = await _viewModel.consultarPreferencias();
 
     if (!mounted) return;
 
@@ -95,53 +89,6 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Future<void> salvarDocumento() async {
-    final titulo = _tituloController.text.trim();
-    final conteudo = _documentoController.text.trim();
-
-    if (titulo.isEmpty || conteudo.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Informe o título e o conteúdo.'),
-        ),
-      );
-      return;
-    }
-
-    final documento = Documento(
-      id: _documentoEmEdicaoId ??
-          DateTime.now().microsecondsSinceEpoch.toString(),
-      titulo: titulo,
-      conteudo: conteudo,
-    );
-
-    await _viewModel.salvarDocumento(documento);
-
-    if (!mounted) return;
-
-    _limparFormulario();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Documento salvo com sucesso!'),
-      ),
-    );
-  }
-
-  void abrirDocumento(Documento documento) {
-    setState(() {
-      _documentoEmEdicaoId = documento.id;
-      _tituloController.text = documento.titulo;
-      _documentoController.text = documento.conteudo;
-    });
-  }
-
-  void _limparFormulario() {
-    _documentoEmEdicaoId = null;
-    _tituloController.clear();
-    _documentoController.clear();
-  }
-
   Future<void> excluirDocumento(Documento documento) async {
     final confirmar = await showDialog<bool>(
       context: context,
@@ -165,26 +112,13 @@ class _HomeViewState extends State<HomeView> {
 
     if (confirmar != true) return;
 
-    await _viewModel.excluirDocumento(documento.id);
-
-    if (!mounted) return;
-
-    if (_documentoEmEdicaoId == documento.id) {
-      _limparFormulario();
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Documento excluído.'),
-      ),
-    );
+    await _documentosViewModel.excluirDocumento(documento.id);
   }
 
   @override
   void dispose() {
-    _tituloController.dispose();
-    _documentoController.dispose();
     _viewModel.dispose();
+    _documentosViewModel.dispose();
     super.dispose();
   }
 
@@ -214,118 +148,83 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: ListenableBuilder(
-          listenable: _viewModel,
-          builder: (context, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Olá, $nome!',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Olá, $nome!',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text('Bem-vindo à sua área de usuário.'),
+            const SizedBox(height: 24),
+
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Minhas preferências'),
+                subtitle: const Text(
+                  'Consultar tema e notificações',
                 ),
-                const SizedBox(height: 8),
-                const Text('Bem-vindo à sua área de usuário.'),
-                const SizedBox(height: 24),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: mostrarPreferencias,
+              ),
+            ),
 
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Minhas preferências'),
-                    subtitle: const Text(
-                      'Consultar tema e notificações',
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: mostrarPreferencias,
-                  ),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.people),
+                title: const Text('Usuários cadastrados'),
+                subtitle: const Text(
+                  'Visualizar a lista de usuários',
                 ),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: listarUsuarios,
+              ),
+            ),
 
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.people),
-                    title: const Text('Usuários cadastrados'),
-                    subtitle: const Text(
-                      'Visualizar a lista de usuários',
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: listarUsuarios,
-                  ),
-                ),
+            const SizedBox(height: 28),
 
-                const SizedBox(height: 28),
+            const Text(
+              'Meus documentos',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
 
-                const Text(
-                  'Leitor e Editor de Documentos',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+            const SizedBox(height: 12),
 
-                const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/editor').then((_) {
+                  _documentosViewModel.carregarDocumentos();
+                });
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Criar documento'),
+            ),
 
-                TextField(
-                  controller: _tituloController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título do documento',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+            const SizedBox(height: 16),
 
-                const SizedBox(height: 12),
-
-                TextField(
-                  controller: _documentoController,
-                  maxLines: 5,
-                  decoration: const InputDecoration(
-                    labelText: 'Conteúdo',
-                    hintText: 'Digite seu documento...',
-                    border: OutlineInputBorder(),
-                    alignLabelWithHint: true,
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                ElevatedButton.icon(
-                  onPressed: salvarDocumento,
-                  icon: const Icon(Icons.save),
-                  label: Text(
-                    _documentoEmEdicaoId == null
-                        ? 'Salvar documento'
-                        : 'Atualizar documento',
-                  ),
-                ),
-
-                if (_documentoEmEdicaoId != null)
-                  TextButton(
-                    onPressed: _limparFormulario,
-                    child: const Text('Cancelar edição'),
-                  ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  'Documentos salvos',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                if (_viewModel.carregando)
-                  const Center(
+            ListenableBuilder(
+              listenable: _documentosViewModel,
+              builder: (context, child) {
+                if (_documentosViewModel.carregando) {
+                  return const Center(
                     child: CircularProgressIndicator(),
-                  )
-                else if (_viewModel.documentos.isEmpty)
-                  const Text('Nenhum documento salvo.')
-                else
-                  ..._viewModel.documentos.map((documento) {
+                  );
+                }
+
+                if (_documentosViewModel.documentos.isEmpty) {
+                  return const Text('Nenhum documento salvo.');
+                }
+
+                return Column(
+                  children: _documentosViewModel.documentos.map((documento) {
                     return Card(
                       child: ListTile(
                         leading: const Icon(Icons.description),
@@ -335,21 +234,29 @@ class _HomeViewState extends State<HomeView> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        onTap: () => abrirDocumento(documento),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/editor',
+                            arguments: documento,
+                          ).then((_) {
+                            _documentosViewModel.carregarDocumentos();
+                          });
+                        },
                         trailing: IconButton(
                           icon: const Icon(
                             Icons.delete,
                             color: Colors.red,
                           ),
-                          onPressed: () =>
-                              excluirDocumento(documento),
+                          onPressed: () => excluirDocumento(documento),
                         ),
                       ),
                     );
-                  }),
-              ],
-            );
-          },
+                  }).toList(),
+                );
+              },
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: const Padding(

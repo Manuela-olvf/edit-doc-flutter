@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-
+import 'views/editor_view.dart';
 import 'views/login_view.dart';
 import 'views/cadastro_view.dart';
 import 'views/home_view.dart';
@@ -39,12 +39,12 @@ class MeuApp extends StatelessWidget {
               : ThemeMode.light,
 
           initialRoute: '/',
-
-          routes: {
-            '/': (context) => const LoginView(),
-            '/cadastro': (context) => const CadastroView(),
-            '/home': (context) => const HomeView(),
-          },
+routes: {
+  '/': (context) => const LoginView(),
+  '/cadastro': (context) => const CadastroView(),
+  '/home': (context) => const HomeView(),
+  '/editor': (context) => const EditorView(),
+},
         );
       },
     );
