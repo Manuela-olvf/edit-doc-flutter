@@ -38,9 +38,9 @@ A estrutura ficou organizada da seguinte forma:
 
 O código que inicialmente estava concentrado em um único arquivo no DartPad foi dividido em arquivos separados.
 
-Foram criados construtores para as classes, organizados os imports e separadas as responsabilidades de cada componente.
+Foram organizados os imports e separadas as responsabilidades de cada componente.
 
-As telas passaram a importar seus respectivos ViewModels e modelos necessários.
+As telas passaram a utilizar seus respectivos ViewModels e modelos necessários.
 
 Também foram configuradas rotas nomeadas no arquivo main.dart:
 
@@ -55,9 +55,9 @@ A lógica de negócio foi transferida das telas para os ViewModels, utilizando C
 
 O método notifyListeners() informa quando ocorre uma alteração nos dados, enquanto o ListenableBuilder permite que a interface seja atualizada automaticamente.
 
-Os estados e operações de autenticação, cadastro e documentos são controlados pelos respectivos ViewModels.
+Os estados e as operações de autenticação, cadastro e documentos são controlados pelos respectivos ViewModels.
 
-As Views mantêm apenas controles e estados locais necessários à interface, como os controladores dos campos de texto.
+As Views mantêm apenas os controles e estados locais necessários à interface.
 
 ## 5. CRUD e persistência de dados
 
@@ -69,9 +69,11 @@ O DocumentoService utiliza o pacote shared_preferences e os métodos jsonEncode 
 
 Dessa forma, os documentos permanecem salvos mesmo após atualizar a página do aplicativo.
 
-## 6. Preferências do aplicativo
+## 6. Preferências e sessão do usuário
 
 O PreferenciasService utiliza shared_preferences para armazenar as preferências de tema e notificações.
+
+Também foram implementados métodos para salvar, consultar e encerrar a sessão do usuário, armazenando seu nome e e-mail.
 
 O tema selecionado é carregado na inicialização do aplicativo, permitindo manter a escolha entre as sessões.
 
@@ -79,14 +81,12 @@ O controle global do tema é realizado por meio de ValueNotifier e ValueListenab
 
 ## 7. Testes realizados
 
-Foram realizados testes de navegação, cadastro, login e operações com documentos.
+Foi executado o comando flutter analyze, que não apresentou erros de código, apenas avisos informativos relacionados à depreciação do pacote material.dart.
 
-Também foi verificada a persistência dos documentos após atualizar a página do navegador.
-
-O comando flutter analyze foi executado sem erros de código, e o comando flutter test confirmou que os testes automatizados passaram.
+O comando flutter test também foi executado com sucesso, confirmando a aprovação dos testes automatizados.
 
 ## 8. Conclusão
 
 A implementação da arquitetura MVVM tornou o projeto mais organizado e facilitou a manutenção e a separação das responsabilidades.
 
-A segunda fase acrescentou a criação, leitura, edição e exclusão de documentos, além da persistência local das preferências e dos dados utilizando shared_preferences.
+A segunda fase acrescentou a criação, leitura, edição e exclusão de documentos, além da persistência local das preferências e dos dados de sessão utilizando shared_preferences.
