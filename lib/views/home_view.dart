@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/documento.dart';
+import '../models/services/preferencias_service.dart';
 import '../viewmodels/home_viewmodel.dart';
 import '../viewmodels/documentos_viewmodel.dart';
 
@@ -15,11 +16,25 @@ class _HomeViewState extends State<HomeView> {
   final HomeViewModel _viewModel = HomeViewModel();
   final DocumentosViewModel _documentosViewModel =
       DocumentosViewModel();
+  final PreferenciasService _preferenciasService =
+      PreferenciasService();
 
   @override
   void initState() {
     super.initState();
     _documentosViewModel.carregarDocumentos();
+  }
+
+  Future<void> sair() async {
+    await _preferenciasService.encerrarSessao();
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (route) => false,
+    );
   }
 
   Future<void> mostrarPreferencias() async {
@@ -136,13 +151,7 @@ class _HomeViewState extends State<HomeView> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sair',
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/',
-                (route) => false,
-              );
-            },
+            onPressed: sair,
           ),
         ],
       ),
@@ -161,7 +170,6 @@ class _HomeViewState extends State<HomeView> {
             const SizedBox(height: 8),
             const Text('Bem-vindo à sua área de usuário.'),
             const SizedBox(height: 24),
-
             Card(
               child: ListTile(
                 leading: const Icon(Icons.settings),
@@ -173,7 +181,6 @@ class _HomeViewState extends State<HomeView> {
                 onTap: mostrarPreferencias,
               ),
             ),
-
             Card(
               child: ListTile(
                 leading: const Icon(Icons.people),
@@ -185,9 +192,7 @@ class _HomeViewState extends State<HomeView> {
                 onTap: listarUsuarios,
               ),
             ),
-
             const SizedBox(height: 28),
-
             const Text(
               'Meus documentos',
               style: TextStyle(
@@ -195,9 +200,7 @@ class _HomeViewState extends State<HomeView> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 12),
-
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushNamed(context, '/editor').then((_) {
@@ -207,9 +210,7 @@ class _HomeViewState extends State<HomeView> {
               icon: const Icon(Icons.add),
               label: const Text('Criar documento'),
             ),
-
             const SizedBox(height: 16),
-
             ListenableBuilder(
               listenable: _documentosViewModel,
               builder: (context, child) {

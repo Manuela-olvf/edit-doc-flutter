@@ -1,9 +1,13 @@
+
 import 'package:flutter/material.dart';
 import '../models/services/usuario_service.dart';
+import '../models/services/preferencias_service.dart';
 import '../models/usuario.dart';
 
 class LoginViewModel extends ChangeNotifier {
   final UsuarioService _usuarioService = UsuarioService();
+  final PreferenciasService _preferenciasService =
+      PreferenciasService();
 
   bool carregando = false;
   bool ocultarSenha = true;
@@ -27,9 +31,17 @@ class LoginViewModel extends ChangeNotifier {
 
       final usuarios = await _usuarioService.consultar();
 
-      return usuarios.firstWhere(
-        (usuario) => usuario.email.toLowerCase() == email.toLowerCase(),
+      final usuario = usuarios.firstWhere(
+        (usuario) =>
+            usuario.email.toLowerCase() == email.toLowerCase(),
       );
+
+      await _preferenciasService.salvarSessao(
+        usuario.nome,
+        usuario.email,
+      );
+
+      return usuario;
     } finally {
       carregando = false;
       notifyListeners();

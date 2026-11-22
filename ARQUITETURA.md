@@ -2,60 +2,91 @@
 
 ## 1. Organização do projeto
 
-O projeto foi reorganizado utilizando o padrão arquitetural MVVM (Model-View-ViewModel), separando a interface, os dados e as regras de negócio.
+O projeto foi desenvolvido utilizando o padrão arquitetural MVVM (Model-View-ViewModel), separando a interface, os dados e as regras de negócio.
 
-- **Models:** contém a classe `Usuario`, responsável pela estrutura dos dados do usuário.
-- **Views:** contém as telas de Login, Cadastro e Home.
-- **ViewModels:** contém a lógica e o gerenciamento dos estados de cada tela.
-- **Services:** contém os serviços de usuários e preferências.
+A estrutura ficou organizada da seguinte forma:
+
+- **Models:** contém as classes Usuario e Documento.
+- **Services:** realiza o armazenamento e a consulta dos dados.
+- **Views:** contém as telas de Login, Cadastro, Home e Editor.
+- **ViewModels:** controla os estados e as operações de cada funcionalidade.
 - **Utils:** contém os validadores e o controle global do tema.
+- **main.dart:** configura o aplicativo, os temas e as rotas.
 
-## 2. Migração das telas
+## 2. Mapeamento de classes e widgets
 
-As telas originais foram separadas em arquivos:
-
-| Tela original | Nova estrutura |
+| Elemento | Arquivo |
 |---|---|
-| Login | `login_view.dart` e `login_viewmodel.dart` |
-| Cadastro | `cadastro_view.dart` e `cadastro_viewmodel.dart` |
-| Home | `home_view.dart` e `home_viewmodel.dart` |
+| Classe Usuario | models/usuario.dart |
+| Classe Documento | models/documento.dart |
+| Serviço de usuários | models/services/usuario_service.dart |
+| Serviço de preferências | models/services/preferencias_service.dart |
+| Serviço de documentos | models/services/documento_service.dart |
+| LoginView | views/login_view.dart |
+| CadastroView | views/cadastro_view.dart |
+| HomeView | views/home_view.dart |
+| EditorView | views/editor_view.dart |
+| LoginViewModel | viewmodels/login_viewmodel.dart |
+| CadastroViewModel | viewmodels/cadastro_viewmodel.dart |
+| HomeViewModel | viewmodels/home_viewmodel.dart |
+| DocumentosViewModel | viewmodels/documentos_viewmodel.dart |
+| Validadores | utils/validadores.dart |
+| Tema global | utils/tema_global.dart |
+| Rotas e inicialização | main.dart |
 
-## 3. Comunicação entre as classes
+## 3. Alterações de estrutura e imports
 
-As Views são responsáveis pela interface e interação com o usuário. Os ViewModels controlam os estados e executam as regras de negócio, utilizando `ChangeNotifier`.
+O código que inicialmente estava concentrado em um único arquivo no DartPad foi dividido em arquivos separados.
 
-O método `notifyListeners()` informa às telas quando ocorre uma alteração. O componente `ListenableBuilder` atualiza a interface automaticamente.
+Foram criados construtores para as classes, organizados os imports e separadas as responsabilidades de cada componente.
 
-## 4. Rotas e navegação
+As telas passaram a importar seus respectivos ViewModels e modelos necessários.
 
-As rotas foram configuradas no arquivo `main.dart`:
+Também foram configuradas rotas nomeadas no arquivo main.dart:
 
 - `/`: Login
 - `/cadastro`: Cadastro
 - `/home`: Página inicial
+- `/editor`: Criação e edição de documentos
 
-A navegação entre as telas utiliza o `Navigator` do Flutter.
+## 4. Mudanças no gerenciamento de estado
 
-## 5. Gerenciamento de estado
+A lógica de negócio foi transferida das telas para os ViewModels, utilizando ChangeNotifier.
 
-O gerenciamento de estado foi transferido para os ViewModels, substituindo a necessidade de utilizar `setState()` para atualizar os estados das telas.
+O método notifyListeners() informa quando ocorre uma alteração nos dados, enquanto o ListenableBuilder permite que a interface seja atualizada automaticamente.
 
-Os formulários e controladores de texto continuam nas Views, enquanto os estados e as operações de negócio ficam nos ViewModels.
+Os estados e operações de autenticação, cadastro e documentos são controlados pelos respectivos ViewModels.
 
-## 6. Persistência de dados e documentos
+As Views mantêm apenas controles e estados locais necessários à interface, como os controladores dos campos de texto.
 
-Foi implementada a funcionalidade de criação, leitura, edição e exclusão de documentos.
+## 5. CRUD e persistência de dados
 
-A classe `Documento` representa os dados de cada documento, enquanto o `DocumentoService` realiza o armazenamento utilizando o pacote `shared_preferences`.
+Foi criada a classe Documento para representar os documentos cadastrados.
 
-Os documentos são salvos localmente em formato JSON, permitindo que continuem disponíveis após fechar ou atualizar o aplicativo.
+O DocumentosViewModel realiza as operações de criação, consulta, edição e exclusão.
 
-## 7. Preferências do usuário
+O DocumentoService utiliza o pacote shared_preferences e os métodos jsonEncode e jsonDecode para armazenar os documentos em formato JSON.
 
-O serviço `PreferenciasService` foi atualizado para utilizar `shared_preferences`, armazenando as configurações de tema e notificações.
+Dessa forma, os documentos permanecem salvos mesmo após atualizar a página do aplicativo.
 
-O tema selecionado é carregado ao iniciar o aplicativo, mantendo a preferência do usuário entre as sessões.
+## 6. Preferências do aplicativo
+
+O PreferenciasService utiliza shared_preferences para armazenar as preferências de tema e notificações.
+
+O tema selecionado é carregado na inicialização do aplicativo, permitindo manter a escolha entre as sessões.
+
+O controle global do tema é realizado por meio de ValueNotifier e ValueListenableBuilder.
+
+## 7. Testes realizados
+
+Foram realizados testes de navegação, cadastro, login e operações com documentos.
+
+Também foi verificada a persistência dos documentos após atualizar a página do navegador.
+
+O comando flutter analyze foi executado sem erros de código, e o comando flutter test confirmou que os testes automatizados passaram.
 
 ## 8. Conclusão
 
-A migração para MVVM tornou o projeto mais organizado, facilitando a manutenção, a reutilização de código e a implementação de novas funcionalidades. A segunda etapa acrescentou o gerenciamento de documentos e a persistência local de dados e preferências.
+A implementação da arquitetura MVVM tornou o projeto mais organizado e facilitou a manutenção e a separação das responsabilidades.
+
+A segunda fase acrescentou a criação, leitura, edição e exclusão de documentos, além da persistência local das preferências e dos dados utilizando shared_preferences.
